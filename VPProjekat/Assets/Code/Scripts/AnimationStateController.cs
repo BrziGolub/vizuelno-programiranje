@@ -4,42 +4,42 @@ using UnityEngine;
 
 public class AnimationStateController : MonoBehaviour
 {
-    Animator animator;
-	int isWalkingHash;
-	int isRunningHash;
+    private Animator animator;
+
+	private int velocityHash;
+
+	private float velocity = 0.0f;
+
+	[SerializeField] private float acceleration = 0.1f;
+	[SerializeField] private float deceleration = 0.5f;
 
 	private void Start()
 	{
 		animator = GetComponent<Animator>();
-		isWalkingHash = Animator.StringToHash("isWalking");
-		isRunningHash = Animator.StringToHash("isRunning");
+
+		velocityHash = Animator.StringToHash("velocity");
 	}
 
 	private void Update()
 	{
-		bool isWalking = animator.GetBool(isWalkingHash);
-		bool isRunning = animator.GetBool(isRunningHash);
 		bool forwardPressed = Input.GetKey("w");
 		bool runPressed = Input.GetKey("left shift");
 
-		if (!isWalking && forwardPressed)
+		if (forwardPressed && velocity < 1.0f)
 		{
-			animator.SetBool(isWalkingHash, true);
-		}
-		
-		if (isWalking && !forwardPressed)
-		{
-			animator.SetBool(isWalkingHash, false);
+			velocity += Time.deltaTime * acceleration;
 		}
 
-		if (!isRunning && (forwardPressed && runPressed))
+		if (!forwardPressed && velocity > 0.0f)
 		{
-			animator.SetBool(isRunningHash, true);
+			velocity -= Time.deltaTime * deceleration;
 		}
 
-		if (isRunning && (!forwardPressed || !runPressed))
+		if (!forwardPressed && velocity < 0.0f)
 		{
-			animator.SetBool(isRunningHash, false);
+			velocity = 0.0f;
 		}
+
+		animator.SetFloat(velocityHash, velocity);
 	}
 }
