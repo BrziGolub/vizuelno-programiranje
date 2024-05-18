@@ -361,8 +361,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0ce20910fba925409247439fe444751, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  acceleration: 2
-  deceleration: 2
+  acceleration: 1.96
+  deceleration: 2.44
 --- !u!1001 &1239829972
 PrefabInstance:
   m_ObjectHideFlags: 0
