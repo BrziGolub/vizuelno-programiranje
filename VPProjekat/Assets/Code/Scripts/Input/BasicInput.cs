@@ -11,6 +11,7 @@ public class BasicInput : MonoBehaviour
     public Vector2 LookInput { get; private set; } = Vector2.zero;
 
 	public bool IsMoving { get; private set; } = false;
+	public bool IsRunning { get; private set; } = false;
 
 	public bool InverMouseY { get; private set; } = true;
 
@@ -25,6 +26,11 @@ public class BasicInput : MonoBehaviour
 		LookInput = context.ReadValue<Vector2>();
 	}
 
+	private void SetRun(InputAction.CallbackContext context)
+	{
+		IsRunning = context.started;
+	}
+
 	private void OnEnable()
 	{
 		_inputActions = new InputActions();
@@ -35,6 +41,9 @@ public class BasicInput : MonoBehaviour
 
 		_inputActions.BasicActions.Look.performed += SetLook;
 		_inputActions.BasicActions.Look.canceled += SetLook;
+
+		_inputActions.BasicActions.Run.started += SetRun;
+		_inputActions.BasicActions.Run.canceled += SetRun;
 	}
 
 	private void OnDisable()
@@ -44,6 +53,9 @@ public class BasicInput : MonoBehaviour
 
 		_inputActions.BasicActions.Look.performed -= SetLook;
 		_inputActions.BasicActions.Look.canceled -= SetLook;
+
+		_inputActions.BasicActions.Run.started -= SetRun;
+		_inputActions.BasicActions.Run.canceled -= SetRun;
 
 		_inputActions.BasicActions.Disable();
 	}

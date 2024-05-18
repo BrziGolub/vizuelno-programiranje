@@ -44,6 +44,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Run"",
+                    ""type"": ""Value"",
+                    ""id"": ""9682f313-5e1b-483d-b43c-fa8ccabb3263"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -134,6 +143,28 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Look"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e3997649-3d9b-44c8-85f1-951652144144"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Run"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2d5df75a-8bea-4cbe-a3c2-a9eda68bef6c"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Run"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -144,6 +175,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_BasicActions = asset.FindActionMap("BasicActions", throwIfNotFound: true);
         m_BasicActions_Move = m_BasicActions.FindAction("Move", throwIfNotFound: true);
         m_BasicActions_Look = m_BasicActions.FindAction("Look", throwIfNotFound: true);
+        m_BasicActions_Run = m_BasicActions.FindAction("Run", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -207,12 +239,14 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private List<IBasicActionsActions> m_BasicActionsActionsCallbackInterfaces = new List<IBasicActionsActions>();
     private readonly InputAction m_BasicActions_Move;
     private readonly InputAction m_BasicActions_Look;
+    private readonly InputAction m_BasicActions_Run;
     public struct BasicActionsActions
     {
         private @InputActions m_Wrapper;
         public BasicActionsActions(@InputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_BasicActions_Move;
         public InputAction @Look => m_Wrapper.m_BasicActions_Look;
+        public InputAction @Run => m_Wrapper.m_BasicActions_Run;
         public InputActionMap Get() { return m_Wrapper.m_BasicActions; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -228,6 +262,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Look.started += instance.OnLook;
             @Look.performed += instance.OnLook;
             @Look.canceled += instance.OnLook;
+            @Run.started += instance.OnRun;
+            @Run.performed += instance.OnRun;
+            @Run.canceled += instance.OnRun;
         }
 
         private void UnregisterCallbacks(IBasicActionsActions instance)
@@ -238,6 +275,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Look.started -= instance.OnLook;
             @Look.performed -= instance.OnLook;
             @Look.canceled -= instance.OnLook;
+            @Run.started -= instance.OnRun;
+            @Run.performed -= instance.OnRun;
+            @Run.canceled -= instance.OnRun;
         }
 
         public void RemoveCallbacks(IBasicActionsActions instance)
@@ -259,5 +299,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     {
         void OnMove(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
+        void OnRun(InputAction.CallbackContext context);
     }
 }
