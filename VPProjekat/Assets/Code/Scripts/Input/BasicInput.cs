@@ -12,6 +12,7 @@ public class BasicInput : MonoBehaviour
 
 	public bool IsMoving { get; private set; } = false;
 	public bool IsRunning { get; private set; } = false;
+	public bool IsCrouching { get; private set; } = false;
 
 	public bool InverMouseY { get; private set; } = true;
 
@@ -31,6 +32,11 @@ public class BasicInput : MonoBehaviour
 		IsRunning = context.started;
 	}
 
+	private void SetCrouch(InputAction.CallbackContext context)
+	{
+		IsCrouching = !IsCrouching;
+	}
+
 	private void OnEnable()
 	{
 		_inputActions = new InputActions();
@@ -44,6 +50,8 @@ public class BasicInput : MonoBehaviour
 
 		_inputActions.BasicActions.Run.started += SetRun;
 		_inputActions.BasicActions.Run.canceled += SetRun;
+
+		_inputActions.BasicActions.Crouch.started += SetCrouch;
 	}
 
 	private void OnDisable()
@@ -56,6 +64,8 @@ public class BasicInput : MonoBehaviour
 
 		_inputActions.BasicActions.Run.started -= SetRun;
 		_inputActions.BasicActions.Run.canceled -= SetRun;
+
+		_inputActions.BasicActions.Crouch.started -= SetCrouch;
 
 		_inputActions.BasicActions.Disable();
 	}
