@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private Animator _animator;
+	private CapsuleCollider _capsuleCollider;
+
 	[SerializeField] private BasicInput _basicsInput;
 
 	[SerializeField] private float _rotationSpeed = 500.0f;
@@ -17,6 +19,7 @@ public class PlayerController : MonoBehaviour
 	private void Start()
 	{
 		_animator = GetComponent<Animator>();
+		_capsuleCollider = GetComponent<CapsuleCollider>();
 	}
 
 	private void Update()
@@ -60,13 +63,31 @@ public class PlayerController : MonoBehaviour
 
 		if (_basicsInput.IsCrouching && !_isCrouching)
 		{
-			_animator.CrossFade("Locomotion_Crouch", 0.25f);
+			if (_basicsInput.IsRunning)
+			{
+				_animator.CrossFade("Slide", 0.25f);
+
+				_capsuleCollider.height = 1.75f;
+				_capsuleCollider.center = new Vector3(0.0f, 0.875f, 0.0f);
+			}
+			else
+			{
+				_animator.CrossFade("Locomotion_Crouch", 0.25f);
+
+				_capsuleCollider.height = 3;
+				_capsuleCollider.radius = 0.77f;
+				_capsuleCollider.center = new Vector3(0.0f, 1.5f, 0.0f);
+			}
+
 			_isCrouching = true;
 		}
 		else if (!_basicsInput.IsCrouching && _isCrouching)
 		{
 			_animator.CrossFade("Locomotion", 0.25f);
 			_isCrouching = false;
+			_capsuleCollider.height = 4;
+			_capsuleCollider.radius = 0.5f;
+			_capsuleCollider.center = new Vector3(0.0f, 2.0f, 0.0f);
 		}
 	}
 }
