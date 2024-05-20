@@ -14,7 +14,7 @@ public class BasicInput : MonoBehaviour
 	public bool IsRunning { get; private set; } = false;
 	public bool IsCrouching { get; private set; } = false;
 
-	public bool InverMouseY { get; private set; } = true;
+	public bool InvertMouseY { get; private set; } = true;
 
 	private void SetMove(InputAction.CallbackContext context)
 	{

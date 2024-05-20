@@ -67,6 +67,9 @@ public class PlayerController : MonoBehaviour
 			{
 				_animator.CrossFade("Slide", 0.25f);
 
+				Vector3 anim_rotation = _animator.rootRotation.eulerAngles;
+				DesiredRotation = Quaternion.Euler(new Vector3(anim_rotation.x, anim_rotation.y, anim_rotation.z));
+
 				_capsuleCollider.height = 1.75f;
 				_capsuleCollider.center = new Vector3(0.0f, 0.875f, 0.0f);
 			}

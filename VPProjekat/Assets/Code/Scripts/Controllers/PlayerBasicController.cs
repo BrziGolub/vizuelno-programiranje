@@ -72,7 +72,7 @@ public class PlayerBasicController : MonoBehaviour
 	private Vector3 GetLookInput()
 	{
 		_previousPlayerLookInput = _playerLookInput;
-		_playerLookInput = new Vector3(_basicInput.LookInput.x, (_basicInput.InverMouseY ? -_basicInput.LookInput.y : _basicInput.LookInput.y), 0.0f);
+		_playerLookInput = new Vector3(_basicInput.LookInput.x, (_basicInput.InvertMouseY ? -_basicInput.LookInput.y : _basicInput.LookInput.y), 0.0f);
 		return Vector3.Lerp(_previousPlayerLookInput, _playerLookInput * Time.deltaTime, _playerLookInputLerpTime);
 	}
 
