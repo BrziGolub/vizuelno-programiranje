@@ -63,34 +63,38 @@ public class PlayerController : MonoBehaviour
 
 		if (_basicsInput.IsCrouching && !_isCrouching)
 		{
-			if (_basicsInput.IsRunning)
+            _isCrouching = true;
+
+            if (_basicsInput.IsRunning)
 			{
 				_animator.CrossFade("Slide", 0.25f);
 
 				Vector3 anim_rotation = _animator.rootRotation.eulerAngles;
 				DesiredRotation = Quaternion.Euler(new Vector3(anim_rotation.x, anim_rotation.y, anim_rotation.z));
 
-				_capsuleCollider.height = 1.75f;
-				_capsuleCollider.center = new Vector3(0.0f, 0.875f, 0.0f);
-			}
+                ResizeCapsuleCollider(1.75f, new Vector3(0.0f, 0.875f, 0.0f));
+            }
 			else
 			{
 				_animator.CrossFade("Locomotion_Crouch", 0.25f);
 
-				_capsuleCollider.height = 3;
-				_capsuleCollider.radius = 0.77f;
-				_capsuleCollider.center = new Vector3(0.0f, 1.5f, 0.0f);
-			}
-
-			_isCrouching = true;
+                ResizeCapsuleCollider(3, new Vector3(0.0f, 1.5f, 0.0f), radius: 0.77f);
+            }
 		}
 		else if (!_basicsInput.IsCrouching && _isCrouching)
 		{
-			_animator.CrossFade("Locomotion", 0.25f);
 			_isCrouching = false;
-			_capsuleCollider.height = 4;
-			_capsuleCollider.radius = 0.5f;
-			_capsuleCollider.center = new Vector3(0.0f, 2.0f, 0.0f);
+			_animator.CrossFade("Locomotion", 0.25f);
+
+			ResizeCapsuleCollider(4, new Vector3(0.0f, 2.0f, 0.0f));
 		}
 	}
+
+	// Adjusting size of collider according to animation
+	public void ResizeCapsuleCollider(float height, Vector3 center, float radius = 0.5f)
+	{
+        _capsuleCollider.height = height;
+        _capsuleCollider.radius = radius;
+        _capsuleCollider.center = center;
+    }
 }
