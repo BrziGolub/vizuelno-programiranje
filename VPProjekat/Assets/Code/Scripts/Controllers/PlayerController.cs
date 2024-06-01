@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour
 
 		_animator.SetFloat("MoveAmount", move_amount, 0.25f, Time.deltaTime);
 
+		_animator.SetBool("IsMoving", _basicsInput.IsMoving);
 		_animator.SetBool("IsRunning", _basicsInput.IsRunning);
 
 		if (IsAnimationBusy) return;
