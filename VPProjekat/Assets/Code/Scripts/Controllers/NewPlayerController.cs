@@ -20,6 +20,8 @@ public class NewPlayerController : MonoBehaviour
 	[SerializeField] private float maxForce = 1.0f;
 	[SerializeField] private float rotationSpeed = 1.0f;
 	[SerializeField] private float lookSensitivity = 1.0f;
+	[SerializeField] private float gravityVelocity = 1.0f;
+	[SerializeField] private float timeBeforeStartFalling = 1.0f;
 
 	private Vector2 moveInput = Vector2.zero;
 	private Vector2 lookInput = Vector2.zero;
@@ -27,11 +29,15 @@ public class NewPlayerController : MonoBehaviour
 	private bool isMoving = false;
 	private bool isRunning = false;
 	private float currentSpeed = 0.0f;
+	private bool isInAir = false;
+	private float inAirTime = 0.0f;
+	private bool isSliding = false;
 
 	// Animator hash fields
 	private int moveAmountHash;
 	private int isMovingHash;
 	private int isRunningHash;
+	private int isGroundedHash;
 
 	private void Awake()
 	{
@@ -49,6 +55,7 @@ public class NewPlayerController : MonoBehaviour
 		moveAmountHash = Animator.StringToHash("MoveAmount");
 		isMovingHash = Animator.StringToHash("IsMoving");
 		isRunningHash = Animator.StringToHash("IsRunning");
+		isGroundedHash = Animator.StringToHash("IsGrounded");
 	}
 
 	private void Update()
@@ -56,14 +63,29 @@ public class NewPlayerController : MonoBehaviour
 		Vector3 movement = new Vector3(moveInput.x, 0.0f, moveInput.y);
 		float moveAmount = Mathf.Clamp01(Mathf.Abs(movement.x) + Mathf.Abs(movement.z));
 
+		// Counting time spent in air
+		if (!isGrounded)
+		{
+			if (!isInAir && inAirTime > timeBeforeStartFalling)
+			{
+				// Falling animation transition
+				animator.CrossFade("Jump Midair", 0.2f);
+				isInAir = true;
+			}
+
+			inAirTime += Time.deltaTime;
+		}
+
 		animator.SetFloat(moveAmountHash, moveAmount, 0.25f, Time.deltaTime);
 		animator.SetBool(isMovingHash, isMoving);
 		animator.SetBool(isRunningHash, isRunning);
+		animator.SetBool(isGroundedHash, isGrounded);
 	}
 
 	private void FixedUpdate()
 	{
 		// Handling Translation of character
+		AmplifyGravity();
 		Move();
 	}
 
@@ -73,6 +95,12 @@ public class NewPlayerController : MonoBehaviour
 
 		// Handling rotation of character
 		Rotate();
+	}
+
+	private void AmplifyGravity()
+	{
+		Vector3 velocityChange = Vector3.down * gravityVelocity;
+		rigidbody.AddForce(velocityChange, ForceMode.VelocityChange);
 	}
 
 	private void Move()
@@ -129,6 +157,20 @@ public class NewPlayerController : MonoBehaviour
 			Vector3 velocity = rigidbody.velocity;
 			velocity.y = jumpVelocity;
 			rigidbody.velocity = velocity;
+
+			isInAir = true;
+
+			// Jump animation transition
+			animator.CrossFade("Jump Up", 0.0f);
+		}
+	}
+
+	private void Crouch(InputAction.CallbackContext context)
+	{
+		if (isRunning)
+		{
+			//isSliding = true;
+			Debug.Log("Crouch");
 		}
 	}
 
@@ -152,6 +194,9 @@ public class NewPlayerController : MonoBehaviour
 
 		// Subscribe to jump input
 		inputActions.BasicActions.Jump.performed += Jump;
+		
+		// Subscribe to crouch input
+		inputActions.BasicActions.Crouch.performed += Crouch;
 	}
 
 	private void OnDisable()
@@ -171,12 +216,21 @@ public class NewPlayerController : MonoBehaviour
 		// Unsubscribe to jump input
 		inputActions.BasicActions.Jump.performed -= Jump;
 
+		// Unsubscribe to crouch input
+		inputActions.BasicActions.Crouch.performed -= Crouch;
+
 		// Deactivate basic actions map
 		inputActions.BasicActions.Disable();
 	}
 
 	public void SetGroundedState(bool state)
 	{
+		if (state && isGrounded != state)
+		{
+			inAirTime = 0.0f;
+			isInAir = false;
+		}
+
 		isGrounded = state;
 	}
 }
