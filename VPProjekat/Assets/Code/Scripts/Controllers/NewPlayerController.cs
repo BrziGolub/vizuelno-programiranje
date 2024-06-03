@@ -36,6 +36,11 @@ public class NewPlayerController : MonoBehaviour
 	private bool isSliding = false;
 	private Vector3 momentumDirection = Vector3.zero;
 
+	// Power up
+	public float speedMultiplier { get; private set; } = 1.0f;
+	public float powerUpTimer { get; private set; } = 0.0f;
+	public float outputSpeed { get; private set; }
+
 	private bool canSlide => isMoving && isRunning && isGrounded;
 	private bool canJump => isGrounded && !isSliding;
 	private bool canMove => isMoving && !isSliding;
@@ -61,6 +66,7 @@ public class NewPlayerController : MonoBehaviour
 		// setup
 		currentSpeed = walkSpeed;
 		slideSpeed = runSpeed;
+		outputSpeed = 0.0f;
 
 		moveAmountHash = Animator.StringToHash("MoveAmount");
 		isMovingHash = Animator.StringToHash("IsMoving");
@@ -70,8 +76,16 @@ public class NewPlayerController : MonoBehaviour
 
 	private void Update()
 	{
-		Vector3 movement = new Vector3(moveInput.x, 0.0f, moveInput.y);
-		float moveAmount = Mathf.Clamp01(Mathf.Abs(movement.x) + Mathf.Abs(movement.z));
+		// Power up timer
+		if (powerUpTimer > 0.0f)
+		{
+			powerUpTimer -= Time.deltaTime;
+		}
+		else if (powerUpTimer < 0.0f)
+		{
+			powerUpTimer = 0.0f;
+			speedMultiplier = 1.0f;
+		}
 
 		// Counting time spent in air
 		if (!isGrounded)
@@ -85,6 +99,9 @@ public class NewPlayerController : MonoBehaviour
 
 			inAirTime += Time.deltaTime;
 		}
+
+		Vector3 movement = new Vector3(moveInput.x, 0.0f, moveInput.y);
+		float moveAmount = Mathf.Clamp01(Mathf.Abs(movement.x) + Mathf.Abs(movement.z));
 
 		animator.SetFloat(moveAmountHash, moveAmount, 0.25f, Time.deltaTime);
 		animator.SetBool(isMovingHash, isMoving);
@@ -133,7 +150,10 @@ public class NewPlayerController : MonoBehaviour
 			speed = slideSpeed;
 		}
 
-		Vector3 targetVelocity = direction * speed;
+		outputSpeed = speed * speedMultiplier;
+		Vector3 targetVelocity = direction * outputSpeed;
+
+		if (direction == Vector3.zero) outputSpeed = 0.0f;
 
 		// Calculate Velocity change
 		Vector3 currentVelocity = rigidbody.velocity;
@@ -283,5 +303,11 @@ public class NewPlayerController : MonoBehaviour
 
 		if (isSliding) ResizeCollider();
 		else ResizeCollider();
+	}
+
+	public void CollectPowerUp(float multiplier, float timer)
+	{
+		speedMultiplier = multiplier;
+		powerUpTimer = timer;
 	}
 }
