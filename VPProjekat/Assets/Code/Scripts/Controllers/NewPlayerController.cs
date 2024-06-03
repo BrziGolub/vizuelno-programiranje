@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -52,6 +53,11 @@ public class NewPlayerController : MonoBehaviour
 	private int isRunningHash;
 	private int isGroundedHash;
 
+	// UI Elements
+	[Header("UI references")]
+	public TextMeshProUGUI speedUI;
+	public TextMeshProUGUI timerUI;
+
 	private void Awake()
 	{
 		rigidbody = GetComponent<Rigidbody>();
@@ -67,6 +73,9 @@ public class NewPlayerController : MonoBehaviour
 		currentSpeed = walkSpeed;
 		slideSpeed = runSpeed;
 		outputSpeed = 0.0f;
+
+		speedUI.text = outputSpeed.ToString();
+		timerUI.text = powerUpTimer.ToString();
 
 		moveAmountHash = Animator.StringToHash("MoveAmount");
 		isMovingHash = Animator.StringToHash("IsMoving");
@@ -99,6 +108,10 @@ public class NewPlayerController : MonoBehaviour
 
 			inAirTime += Time.deltaTime;
 		}
+
+		// Update UI
+		speedUI.text = $"{Math.Round(outputSpeed, 2)}";
+		timerUI.text = $"{MathF.Ceiling(powerUpTimer)}s";
 
 		Vector3 movement = new Vector3(moveInput.x, 0.0f, moveInput.y);
 		float moveAmount = Mathf.Clamp01(Mathf.Abs(movement.x) + Mathf.Abs(movement.z));
