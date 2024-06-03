@@ -9,6 +9,7 @@ public class NewPlayerController : MonoBehaviour
 	private InputActions inputActions;
 
     private new Rigidbody rigidbody;
+	private CapsuleCollider capsuleCollider;
 
 	[Header("References")]
 	[SerializeField] private Animator animator;
@@ -16,10 +17,11 @@ public class NewPlayerController : MonoBehaviour
 	[Header("Parameters")]
 	[SerializeField] private float walkSpeed = 1.0f;
 	[SerializeField] private float runSpeed = 1.0f;
+	[SerializeField] private float slideSpeed = 1.0f;
 	[SerializeField] private float jumpVelocity = 1.0f;
 	[SerializeField] private float maxForce = 1.0f;
 	[SerializeField] private float rotationSpeed = 1.0f;
-	[SerializeField] private float lookSensitivity = 1.0f;
+	//[SerializeField] private float lookSensitivity = 1.0f;
 	[SerializeField] private float gravityVelocity = 1.0f;
 	[SerializeField] private float timeBeforeStartFalling = 1.0f;
 
@@ -32,6 +34,12 @@ public class NewPlayerController : MonoBehaviour
 	private bool isInAir = false;
 	private float inAirTime = 0.0f;
 	private bool isSliding = false;
+	private Vector3 momentumDirection = Vector3.zero;
+
+	private bool canSlide => isMoving && isRunning && isGrounded;
+	private bool canJump => isGrounded && !isSliding;
+	private bool canMove => isMoving && !isSliding;
+	private bool canRotate => canMove;
 
 	// Animator hash fields
 	private int moveAmountHash;
@@ -42,6 +50,7 @@ public class NewPlayerController : MonoBehaviour
 	private void Awake()
 	{
 		rigidbody = GetComponent<Rigidbody>();
+		capsuleCollider = GetComponent<CapsuleCollider>();
 	}
 
 	private void Start()
@@ -51,6 +60,7 @@ public class NewPlayerController : MonoBehaviour
 
 		// setup
 		currentSpeed = walkSpeed;
+		slideSpeed = runSpeed;
 
 		moveAmountHash = Animator.StringToHash("MoveAmount");
 		isMovingHash = Animator.StringToHash("IsMoving");
@@ -91,8 +101,6 @@ public class NewPlayerController : MonoBehaviour
 
 	private void LateUpdate()
 	{
-		if (!isMoving) return;
-
 		// Handling rotation of character
 		Rotate();
 	}
@@ -105,12 +113,27 @@ public class NewPlayerController : MonoBehaviour
 
 	private void Move()
 	{
-		// Calculate Direction
-		Transform cameraTransform = Camera.main.transform;
-		Vector3 localDirection = new Vector3(moveInput.x, 0.0f, moveInput.y);
-		Vector3 worldDirection = (cameraTransform.forward * localDirection.z + cameraTransform.right * localDirection.x).normalized;
-		worldDirection.y = 0.0f;
-		Vector3 targetVelocity = worldDirection * currentSpeed;
+		Vector3 direction = Vector3.zero;
+		float speed = currentSpeed;
+
+		if (canMove)
+		{
+			// Calculate move Direction
+			Transform cameraTransform = Camera.main.transform;
+			Vector3 localDirection = new Vector3(moveInput.x, 0.0f, moveInput.y);
+			Vector3 worldDirection = (cameraTransform.forward * localDirection.z + cameraTransform.right * localDirection.x).normalized;
+			worldDirection.y = 0.0f;
+			direction = worldDirection;
+			momentumDirection = worldDirection;
+		}
+
+		if (isSliding)
+		{
+			direction = momentumDirection;
+			speed = slideSpeed;
+		}
+
+		Vector3 targetVelocity = direction * speed;
 
 		// Calculate Velocity change
 		Vector3 currentVelocity = rigidbody.velocity;
@@ -126,6 +149,8 @@ public class NewPlayerController : MonoBehaviour
 	
 	private void Rotate()
 	{
+		if (!canRotate) return;
+
 		Vector3 input = new Vector3(moveInput.x, 0.0f, moveInput.y);
 		Vector3 cam = Camera.main.transform.forward;
 		Vector3 direction = Quaternion.LookRotation(new Vector3(cam.x, 0.0f, cam.z)) * input;
@@ -152,7 +177,7 @@ public class NewPlayerController : MonoBehaviour
 
 	private void Jump(InputAction.CallbackContext context)
 	{
-		if (isGrounded)
+		if (canJump)
 		{
 			Vector3 velocity = rigidbody.velocity;
 			velocity.y = jumpVelocity;
@@ -167,10 +192,11 @@ public class NewPlayerController : MonoBehaviour
 
 	private void Crouch(InputAction.CallbackContext context)
 	{
-		if (isRunning)
+		if (canSlide)
 		{
-			//isSliding = true;
-			Debug.Log("Crouch");
+			currentSpeed = runSpeed;
+
+			animator.CrossFade("Slide", 0.2f);
 		}
 	}
 
@@ -223,6 +249,23 @@ public class NewPlayerController : MonoBehaviour
 		inputActions.BasicActions.Disable();
 	}
 
+	private void ResizeCollider()
+	{
+		if (isSliding)
+		{
+			capsuleCollider.center = new Vector3(0.0f, 1.0f, 0.0f);
+			capsuleCollider.radius = 0.7f;
+			capsuleCollider.height = 2.0f;
+			//capsuleCollider.direction = 2;
+			return;
+		}
+
+		capsuleCollider.center = new Vector3(0.0f, 2.0f, 0.0f);
+		capsuleCollider.radius = 0.5f;
+		capsuleCollider.height = 4.0f;
+		//capsuleCollider.direction = 1;
+	}
+
 	public void SetGroundedState(bool state)
 	{
 		if (state && isGrounded != state)
@@ -232,5 +275,13 @@ public class NewPlayerController : MonoBehaviour
 		}
 
 		isGrounded = state;
+	}
+
+	public void SetSlideState(bool state)
+	{
+		isSliding = state;
+
+		if (isSliding) ResizeCollider();
+		else ResizeCollider();
 	}
 }
