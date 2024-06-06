@@ -57,6 +57,8 @@ public class NewPlayerController : MonoBehaviour
 	[Header("UI references")]
 	public TextMeshProUGUI speedUI;
 	public TextMeshProUGUI timerUI;
+	public TextMeshProUGUI multiplierUI;
+	public GameObject PowerUpPanel;
 
 	private void Awake()
 	{
@@ -76,6 +78,7 @@ public class NewPlayerController : MonoBehaviour
 
 		speedUI.text = outputSpeed.ToString();
 		timerUI.text = powerUpTimer.ToString();
+		multiplierUI.text = speedMultiplier.ToString();
 
 		moveAmountHash = Animator.StringToHash("MoveAmount");
 		isMovingHash = Animator.StringToHash("IsMoving");
@@ -94,6 +97,8 @@ public class NewPlayerController : MonoBehaviour
 		{
 			powerUpTimer = 0.0f;
 			speedMultiplier = 1.0f;
+
+			PowerUpPanel.SetActive(false);
 		}
 
 		// Counting time spent in air
@@ -112,6 +117,7 @@ public class NewPlayerController : MonoBehaviour
 		// Update UI
 		speedUI.text = $"{Math.Round(outputSpeed, 2)}";
 		timerUI.text = $"{MathF.Ceiling(powerUpTimer)}s";
+		multiplierUI.text = $"x{speedMultiplier}";
 
 		Vector3 movement = new Vector3(moveInput.x, 0.0f, moveInput.y);
 		float moveAmount = Mathf.Clamp01(Mathf.Abs(movement.x) + Mathf.Abs(movement.z));
@@ -322,5 +328,7 @@ public class NewPlayerController : MonoBehaviour
 	{
 		speedMultiplier = multiplier;
 		powerUpTimer = timer;
+
+		PowerUpPanel.SetActive(true);
 	}
 }
