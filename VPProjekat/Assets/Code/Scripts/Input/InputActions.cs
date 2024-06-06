@@ -71,6 +71,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Exit"",
+                    ""type"": ""Button"",
+                    ""id"": ""4ceab5ea-8a9e-4e49-84c4-f125f3e490d6"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -227,6 +236,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Jump"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f242d290-3131-4c73-b2f4-3763c2df53ba"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""Exit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -263,6 +283,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_BasicActions_Run = m_BasicActions.FindAction("Run", throwIfNotFound: true);
         m_BasicActions_Crouch = m_BasicActions.FindAction("Crouch", throwIfNotFound: true);
         m_BasicActions_Jump = m_BasicActions.FindAction("Jump", throwIfNotFound: true);
+        m_BasicActions_Exit = m_BasicActions.FindAction("Exit", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -329,6 +350,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_BasicActions_Run;
     private readonly InputAction m_BasicActions_Crouch;
     private readonly InputAction m_BasicActions_Jump;
+    private readonly InputAction m_BasicActions_Exit;
     public struct BasicActionsActions
     {
         private @InputActions m_Wrapper;
@@ -338,6 +360,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @Run => m_Wrapper.m_BasicActions_Run;
         public InputAction @Crouch => m_Wrapper.m_BasicActions_Crouch;
         public InputAction @Jump => m_Wrapper.m_BasicActions_Jump;
+        public InputAction @Exit => m_Wrapper.m_BasicActions_Exit;
         public InputActionMap Get() { return m_Wrapper.m_BasicActions; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -362,6 +385,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Jump.started += instance.OnJump;
             @Jump.performed += instance.OnJump;
             @Jump.canceled += instance.OnJump;
+            @Exit.started += instance.OnExit;
+            @Exit.performed += instance.OnExit;
+            @Exit.canceled += instance.OnExit;
         }
 
         private void UnregisterCallbacks(IBasicActionsActions instance)
@@ -381,6 +407,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Jump.started -= instance.OnJump;
             @Jump.performed -= instance.OnJump;
             @Jump.canceled -= instance.OnJump;
+            @Exit.started -= instance.OnExit;
+            @Exit.performed -= instance.OnExit;
+            @Exit.canceled -= instance.OnExit;
         }
 
         public void RemoveCallbacks(IBasicActionsActions instance)
@@ -423,5 +452,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnRun(InputAction.CallbackContext context);
         void OnCrouch(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
+        void OnExit(InputAction.CallbackContext context);
     }
 }

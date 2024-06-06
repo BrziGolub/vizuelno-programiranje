@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class NewPlayerController : MonoBehaviour
 {
@@ -239,6 +240,11 @@ public class NewPlayerController : MonoBehaviour
 		}
 	}
 
+	private void ExitGame(InputAction.CallbackContext context)
+	{
+		SceneManager.LoadScene(0);
+	}
+
 	private void OnEnable()
 	{
 		// Activate basic actions map
@@ -262,6 +268,9 @@ public class NewPlayerController : MonoBehaviour
 		
 		// Subscribe to crouch input
 		inputActions.BasicActions.Crouch.performed += Crouch;
+
+		// Subscribe to exit input
+		inputActions.BasicActions.Exit.performed += ExitGame;
 	}
 
 	private void OnDisable()
@@ -283,6 +292,9 @@ public class NewPlayerController : MonoBehaviour
 
 		// Unsubscribe to crouch input
 		inputActions.BasicActions.Crouch.performed -= Crouch;
+
+		// Unsubscribe to exit input
+		inputActions.BasicActions.Exit.performed -= ExitGame;
 
 		// Deactivate basic actions map
 		inputActions.BasicActions.Disable();
